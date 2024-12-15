@@ -142,7 +142,7 @@ body {
     }
   }
 }
-@media (max-width) {
+@media (max-width: 600px) {
   .chat-send-button {
     flex-basis: 10%;
   }
