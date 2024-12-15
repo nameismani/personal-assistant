@@ -148,6 +148,8 @@ export async function POST(request: Request) {
     7. If asked general questions unrelated to Mani:
        - Politely decline by saying:
          - "I am here to provide information about Mani only."
+    8. If asked social media link
+      - share https://www.linkedin.com/in/manikandan-b-517936171/
     
     ### IMPORTANT:
     - Speak naturally and directly as Mani's Personal Assistant.

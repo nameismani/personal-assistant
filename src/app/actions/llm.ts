@@ -3,7 +3,7 @@
 export const fetchAIResponse = async (query: string): Promise<string> => {
   console.log("click", query);
   try {
-    const response = await fetch("http://localhost:3000/api/groq", {
+    const response = await fetch(`${process.env.BASE_URL}/api/groq`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
