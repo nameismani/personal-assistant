@@ -38,9 +38,9 @@ export async function POST(request: Request) {
       openAIApiKey: process.env.OPENAI_KEY,
       modelName: "text-embedding-ada-002",
     });
-    console.log(openAIEmbeddings, "opneai embdieng");
+    // console.log(openAIEmbeddings, "opneai embdieng");
     const embedding = await openAIEmbeddings.embedQuery(query || "");
-    console.log(embedding, "opneai embdieng data");
+    // console.log(embedding, "opneai embdieng data");
     const collection = await db.collection("portfolio");
     const cursor = collection.find(
       {},
@@ -53,7 +53,7 @@ export async function POST(request: Request) {
     );
 
     const documents = await cursor.toArray();
-    console.log(documents, "documents");
+    // console.log(documents, "documents");
     // // Initialize ChromaDB with precomputed embeddings
     // const vectorStore = await Chroma.fromExistingIndex(
     //   vectors,

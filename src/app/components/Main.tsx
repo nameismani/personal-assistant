@@ -1,48 +1,105 @@
 "use client";
-
-import { Box, Button, TextField } from "@mui/material";
 import React, { useState } from "react";
+import {
+  Box,
+  Button,
+  TextField,
+  Typography,
+  CircularProgress,
+} from "@mui/material";
 import { fetchAIResponse } from "../actions/llm";
-interface query {
-  query?: string;
-  response?: string;
+import { AiOutlineSend } from "react-icons/ai";
+import ChatBox from "./ChatBox";
+export interface Message {
+  type: "user" | "ai";
+  value: string;
 }
+
 const Main = () => {
-  const [query, setQuery] = useState<query>();
+  const [conversation, setConversation] = useState<Message[]>([]);
+  const [input, setInput] = useState<string>("");
+  const [isLoading, setIsLoading] = useState<boolean>(false);
+
   const fetchQueryResponse = async () => {
+    if (!input.trim()) return;
+
+    const userMessage: Message = { type: "user", value: input };
+    setConversation((prev) => [...prev, userMessage]);
+    setInput("");
+    setIsLoading(true);
+
     try {
-      const response = await fetchAIResponse(query?.query || "");
-      console.log(response, "sdfds");
-      setQuery((prev) => ({
-        ...(prev || {}),
-        response,
-      }));
+      const aiResponse = await fetchAIResponse(input);
+      const aiMessage: Message = { type: "ai", value: aiResponse };
+      setConversation((prev) => [...prev, aiMessage]);
     } catch (err) {
-      console.log(err);
+      console.error(err);
+    } finally {
+      setIsLoading(false);
     }
   };
+
   return (
-    <Box className="text-center h-full flex flex-col justify-between items-center">
-      <TextField
-        label="Enter a query"
-        variant="outlined"
-        onChange={(event) => {
-          setQuery((prev) => ({
-            ...(prev || {}),
-            query: event.target.value,
-          }));
-        }}
-        className="w-[100%] md:w-[70%]"
-      />
-      {query?.response && <Box>{query.response}</Box>}
-      <Button
-        onClick={async () => {
-          await fetchQueryResponse();
-        }}
-        size="medium"
-      >
-        Submit
-      </Button>
+    <Box className="chat-container">
+      <Box className="chat-header">
+        <Typography variant="h5" component="h1" className="text-white">
+          Mani's Personal Assistant
+        </Typography>
+      </Box>
+      <Box className="chat-box">
+        {conversation.map((message, index) => (
+          <ChatBox key={index} {...message} />
+        ))}
+        {isLoading && (
+          <Box className="chat-loading">
+            <CircularProgress size={24} />
+          </Box>
+        )}
+      </Box>
+      <Box className="chat-input">
+        <input
+          type="text"
+          placeholder="Enter your message"
+          value={input}
+          onChange={(e) => setInput(e.target.value)}
+          onKeyDown={(e) => {
+            if (e.key === "Enter") fetchQueryResponse();
+          }}
+          className="chat-input-field"
+        />
+        <button
+          onClick={fetchQueryResponse}
+          disabled={isLoading}
+          className="chat-send-button"
+        >
+          {isLoading ? (
+            <CircularProgress size={16} color="inherit" />
+          ) : (
+            <AiOutlineSend size={20} />
+          )}
+        </button>
+        {/* <TextField
+          label="Enter your message"
+          variant="outlined"
+          fullWidth
+          value={input}
+          onChange={(e) => setInput(e.target.value)}
+          onKeyDown={(e) => {
+            if (e.key === "Enter") fetchQueryResponse();
+          }}
+        />
+        <Button
+          variant="contained"
+          onClick={fetchQueryResponse}
+          disabled={isLoading}
+        >
+          {isLoading ? (
+            <CircularProgress size={16} color="inherit" />
+          ) : (
+            <AiOutlineSend size={20} />
+          )}
+        </Button> */}
+      </Box>
     </Box>
   );
 };

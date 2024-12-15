@@ -7,7 +7,7 @@ export default function Home() {
       component={"div"}
       className="w-full h-screen flex-col justify-center items-center"
     >
-      {" "}
+      {/* {" "}
       <Typography
         variant="body2"
         component="h1"
@@ -15,7 +15,7 @@ export default function Home() {
         className="text-center"
       >
         Welcome to Mani's Personal Assistant
-      </Typography>
+      </Typography> */}
       <Box className="w-1/2 m-auto h-[80%]">
         <Main />
       </Box>
