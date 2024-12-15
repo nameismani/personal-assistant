@@ -16,7 +16,7 @@ export default function Home() {
       >
         Welcome to Mani's Personal Assistant
       </Typography> */}
-      <Box className="w-1/2 m-auto h-[80%]">
+      <Box className="w-full md:w-1/2 m-auto h-[80%]">
         <Main />
       </Box>
     </Box>
