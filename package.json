@@ -10,6 +10,16 @@
   },
   "dependencies": {
     "react": "^18",
+    "@datastax/astra-db-ts": "^1.5.0",
+    "@emotion/react": "^11.11.4",
+    "@emotion/styled": "^11.11.5",
+    "@langchain/community": "^0.3.19",
+    "@langchain/core": "^0.3.23",
+    "@langchain/groq": "^0.1.2",
+    "@langchain/openai": "^0.3.14",
+    "@mui/material": "^5.15.20",
+    "axios": "^1.7.9",
+    "openai": "^4.76.3",
     "react-dom": "^18",
     "next": "14.2.20"
   },
