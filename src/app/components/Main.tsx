@@ -1,6 +1,6 @@
 "use client";
 
-import { Box, Button, TextField, Typography } from "@mui/material";
+import { Box, Button, TextField } from "@mui/material";
 import React, { useState } from "react";
 import { fetchAIResponse } from "../actions/llm";
 interface query {

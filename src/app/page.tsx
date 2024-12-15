@@ -1,12 +1,4 @@
-import Image from "next/image";
-import {
-  Box,
-  Button,
-  IconButton,
-  InputAdornment,
-  TextField,
-  Typography,
-} from "@mui/material";
+import { Box, Typography } from "@mui/material";
 import Main from "./components/Main";
 
 export default function Home() {

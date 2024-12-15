@@ -1,11 +1,11 @@
 import { MongoClient } from "mongodb";
 import { DataAPIClient } from "@datastax/astra-db-ts";
 import "dotenv/config";
-import OpenAI from "openai";
+// import OpenAI from "openai";
 
 const MONGODB_URL = process.env.MONGODB_URL || ""; // Replace with your MongoDB URL
 const MONGODB_DB = "Portfolio_embedings";
-const MONGODB_COLLECTION = "embeddings";
+// const MONGODB_COLLECTION = "embeddings";
 
 const mongoClient = new MongoClient(MONGODB_URL);
 const mongoDBName = MONGODB_DB;

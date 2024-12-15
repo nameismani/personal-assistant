@@ -2,18 +2,11 @@
 import { ChatGroq } from "@langchain/groq"; // Ensure this is the correct import for the Groq model
 import { ChatPromptTemplate } from "@langchain/core/prompts";
 import { NextResponse } from "next/server";
-import { MongoClient } from "mongodb";
-import { Chroma } from "@langchain/community/vectorstores/chroma";
 import { OpenAIEmbeddings } from "@langchain/openai";
 import { DataAPIClient } from "@datastax/astra-db-ts";
 
-// MongoDB URL and Database/Collection
-const MONGODB_URL = process.env.MONGODB_URL || ""; // Replace with your MongoDB URL
-const MONGODB_DB = "Portfolio_embedings";
-const MONGODB_COLLECTION = "embeddings";
-
 // ChromaDB Configuration
-const CHROMA_COLLECTION_NAME = "portfolio_embeddings";
+
 const client = new DataAPIClient(process.env.ASTRA_DB_APPLICATION_TOKEN);
 const db = client.db(process.env.ASTRA_DB_API_ENDPOINT || "", {
   namespace: process.env.ASTRA_DB_NAMESPACE,
@@ -84,7 +77,7 @@ export async function POST(request: Request) {
       apiKey: process.env.GROQ_API_KEY,
       temperature: 0.6,
     });
-    let docuemntsContentArray = documents.map((document) => document.content);
+    const docuemntsContentArray = documents.map((document) => document.content);
     // docuemntsContentArray.join("\n");
     // const prompt = ChatPromptTemplate.fromMessages([
     //   [
