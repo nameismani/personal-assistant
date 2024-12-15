@@ -142,12 +142,6 @@ body {
   }
 }
 
-@media (max-width: 600px) {
-  .chat-container {
-    max-width: 100%;
-  }
-}
-
 ::-webkit-scrollbar {
   width: 10px;
 }
