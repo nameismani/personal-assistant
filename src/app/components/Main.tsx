@@ -70,7 +70,7 @@ const Main = () => {
         <button
           onClick={fetchQueryResponse}
           disabled={isLoading}
-          className="chat-send-button"
+          className="chat-send-button flex"
         >
           {isLoading ? (
             <CircularProgress size={16} color="inherit" />
