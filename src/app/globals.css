@@ -112,7 +112,7 @@ body {
       border-radius: 4px;
       outline: none;
       transition: border-color 0.3s;
-
+      flex-basis: 80%;
       &:focus {
         border-color: #6200ea;
       }
@@ -143,6 +143,9 @@ body {
   }
 }
 @media (max-width: 600px) {
+  .chat-input-field {
+    flex-basis: 90%;
+  }
   .chat-send-button {
     flex-basis: 10%;
   }
