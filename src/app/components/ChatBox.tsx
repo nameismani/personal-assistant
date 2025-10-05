@@ -1,5 +1,5 @@
 "use client";
-import React, { memo, useState } from "react";
+import React, { memo, useState, useEffect } from "react";
 import { Message } from "./Main";
 import { motion } from "framer-motion";
 import { FiCopy, FiCheck } from "react-icons/fi";
@@ -10,6 +10,32 @@ interface ChatBoxProps extends Message {
 
 const ChatBox = ({ type, value, index, timestamp }: ChatBoxProps) => {
   const [copied, setCopied] = useState(false);
+  const [displayedText, setDisplayedText] = useState("");
+  const [isTyping, setIsTyping] = useState(type === "ai");
+
+  // Typing animation for AI messages
+  useEffect(() => {
+    if (type === "ai" && value) {
+      setDisplayedText("");
+      setIsTyping(true);
+      let currentIndex = 0;
+
+      const typingInterval = setInterval(() => {
+        if (currentIndex <= value.length) {
+          setDisplayedText(value.substring(0, currentIndex));
+          currentIndex++;
+        } else {
+          setIsTyping(false);
+          clearInterval(typingInterval);
+        }
+      }, 10); // Speed: 10ms per character (adjust for faster/slower)
+
+      return () => clearInterval(typingInterval);
+    } else {
+      setDisplayedText(value);
+      setIsTyping(false);
+    }
+  }, [value, type]);
 
   const copyToClipboard = () => {
     const tempDiv = document.createElement("div");
@@ -54,8 +80,8 @@ const ChatBox = ({ type, value, index, timestamp }: ChatBoxProps) => {
           transition={{ delay: 0.2, type: "spring" }}
           className={`w-8 h-8 rounded-full flex items-center justify-center text-base shadow-lg flex-shrink-0 ${
             type === "ai"
-              ? "bg-gradient-to-br from-purple-600 to-indigo-600"
-              : "bg-gradient-to-br from-pink-500 to-rose-500"
+              ? "bg-gradient-to-br from-teal-600 to-cyan-600"
+              : "bg-gradient-to-br from-rose-500 to-pink-500"
           }`}
         >
           {type === "ai" ? "🤖" : "👤"}
@@ -66,14 +92,17 @@ const ChatBox = ({ type, value, index, timestamp }: ChatBoxProps) => {
           <div
             className={`px-4 py-3 rounded-2xl break-words overflow-hidden ${
               type === "user"
-                ? "bg-gradient-to-br from-purple-600 to-indigo-600 text-white rounded-br-sm shadow-lg"
+                ? "bg-gradient-to-br from-teal-600 to-cyan-600 text-white rounded-br-sm shadow-lg"
                 : "bg-white text-slate-800 border border-gray-200 rounded-bl-sm shadow-md"
             }`}
           >
             <div
               className="message-content leading-relaxed text-sm md:text-base"
-              dangerouslySetInnerHTML={{ __html: value }}
+              dangerouslySetInnerHTML={{ __html: displayedText }}
             />
+            {isTyping && (
+              <span className="inline-block w-1 h-4 ml-0.5 bg-teal-600 animate-pulse"></span>
+            )}
           </div>
 
           {/* Footer */}
@@ -81,12 +110,12 @@ const ChatBox = ({ type, value, index, timestamp }: ChatBoxProps) => {
             <span className="text-[11px] text-slate-400 font-medium">
               {formatTime(timestamp)}
             </span>
-            {type === "ai" && (
+            {type === "ai" && !isTyping && (
               <motion.button
                 whileHover={{ scale: 1.1 }}
                 whileTap={{ scale: 0.9 }}
                 onClick={copyToClipboard}
-                className="p-1 text-slate-400 hover:bg-gray-100 hover:text-purple-600 rounded transition-colors"
+                className="p-1 text-slate-400 hover:bg-gray-100 hover:text-teal-600 rounded transition-colors"
                 title="Copy message"
               >
                 {copied ? <FiCheck size={14} /> : <FiCopy size={14} />}

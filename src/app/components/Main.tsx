@@ -125,7 +125,7 @@ const Main = () => {
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.1, duration: 0.4 }}
-        className="flex justify-between items-center px-5 py-4 bg-gradient-to-r from-purple-600 to-indigo-600 md:rounded-t-3xl shadow-lg sticky top-0 z-10"
+        className="flex justify-between items-center px-5 py-4 bg-gradient-to-r from-teal-600 to-cyan-600 md:rounded-t-3xl shadow-lg sticky top-0 z-10"
       >
         <div className="flex items-center gap-3 flex-1 min-w-0">
           <motion.div
@@ -140,7 +140,7 @@ const Main = () => {
               Mani's Personal Assistant
             </h1>
             <p className="text-white/95 text-xs flex items-center gap-1.5 mt-0.5">
-              <span className="w-2 h-2 rounded-full bg-green-400 animate-pulse"></span>
+              <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
               Online • Ready to help
             </p>
           </div>
@@ -208,7 +208,7 @@ const Main = () => {
                       whileHover={{ scale: 1.05, y: -2 }}
                       whileTap={{ scale: 0.95 }}
                       onClick={() => handleSuggestedQuestion(question)}
-                      className="px-4 py-2.5 bg-white border-2 border-gray-200 rounded-full text-slate-700 text-sm font-medium hover:border-purple-500 hover:text-purple-600 transition-all shadow-sm hover:shadow-md"
+                      className="px-4 py-2.5 bg-white border-2 border-gray-200 rounded-full text-slate-700 text-sm font-medium hover:border-teal-500 hover:text-teal-600 transition-all shadow-sm hover:shadow-md"
                     >
                       {question}
                     </motion.button>
@@ -231,13 +231,13 @@ const Main = () => {
             animate={{ opacity: 1, y: 0 }}
             className="flex items-center gap-2.5 px-5 pb-5"
           >
-            <div className="w-8 h-8 rounded-full bg-gradient-to-br from-purple-600 to-indigo-600 flex items-center justify-center text-base shadow-lg flex-shrink-0">
+            <div className="w-8 h-8 rounded-full bg-gradient-to-br from-teal-600 to-cyan-600 flex items-center justify-center text-base shadow-lg flex-shrink-0">
               🤖
             </div>
             <div className="flex gap-1 px-4 py-3 bg-white rounded-2xl rounded-bl-sm shadow-md border border-gray-200">
-              <span className="w-2 h-2 rounded-full bg-gray-300 animate-bounce"></span>
-              <span className="w-2 h-2 rounded-full bg-gray-300 animate-bounce [animation-delay:0.2s]"></span>
-              <span className="w-2 h-2 rounded-full bg-gray-300 animate-bounce [animation-delay:0.4s]"></span>
+              <span className="w-2 h-2 rounded-full bg-teal-400 animate-bounce"></span>
+              <span className="w-2 h-2 rounded-full bg-teal-400 animate-bounce [animation-delay:0.2s]"></span>
+              <span className="w-2 h-2 rounded-full bg-teal-400 animate-bounce [animation-delay:0.4s]"></span>
             </div>
           </motion.div>
         )}
@@ -254,7 +254,7 @@ const Main = () => {
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
             onClick={regenerateLastResponse}
-            className="flex items-center gap-1.5 px-4 py-2 bg-white border border-gray-200 rounded-full text-slate-600 text-sm font-medium hover:border-purple-500 hover:text-purple-600 transition-all shadow-sm hover:shadow-md"
+            className="flex items-center gap-1.5 px-4 py-2 bg-white border border-gray-200 rounded-full text-slate-600 text-sm font-medium hover:border-teal-500 hover:text-teal-600 transition-all shadow-sm hover:shadow-md"
           >
             <FiRefreshCw size={14} />
             Regenerate
@@ -283,14 +283,14 @@ const Main = () => {
               }
             }}
             disabled={isLoading}
-            className="flex-1 px-4 py-3 text-base border-2 border-gray-200 rounded-3xl outline-none transition-all bg-gray-50 text-slate-800 focus:border-purple-500 focus:bg-white focus:shadow-md disabled:opacity-50 disabled:cursor-not-allowed"
+            className="flex-1 px-4 py-3 text-base border-2 border-gray-200 rounded-3xl outline-none transition-all bg-gray-50 text-slate-800 focus:border-teal-500 focus:bg-white focus:shadow-md disabled:opacity-50 disabled:cursor-not-allowed"
           />
           <motion.button
             whileHover={{ scale: 1.08 }}
             whileTap={{ scale: 0.92 }}
             onClick={() => fetchQueryResponse()}
             disabled={isLoading || !input.trim()}
-            className="w-12 h-12 flex items-center justify-center bg-gradient-to-br from-purple-600 to-indigo-600 text-white rounded-full transition-all shadow-lg hover:shadow-xl hover:-translate-y-0.5 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none flex-shrink-0"
+            className="w-12 h-12 flex items-center justify-center bg-gradient-to-br from-teal-600 to-cyan-600 text-white rounded-full transition-all shadow-lg hover:shadow-xl hover:-translate-y-0.5 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none flex-shrink-0"
           >
             {isLoading ? (
               <CircularProgress size={20} sx={{ color: "white" }} />
