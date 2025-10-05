@@ -7,7 +7,8 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "vercel-install": "npm install --legacy-peer-deps"
   },
   "dependencies": {
     "@datastax/astra-db-ts": "^1.5.0",
@@ -19,6 +20,7 @@
     "@langchain/google-genai": "^0.1.5",
     "@langchain/groq": "^0.1.2",
     "@langchain/openai": "^0.3.14",
+    "@langchain/textsplitters": "^0.1.0",
     "@mui/material": "^5.15.20",
     "@qdrant/js-client-rest": "^1.15.1",
     "axios": "^1.7.9",
