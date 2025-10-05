@@ -8,6 +8,8 @@ import { GoogleGenerativeAI } from "@google/generative-ai";
 import { QdrantClient } from "@qdrant/js-client-rest";
 import "dotenv/config";
 
+// node src/lib/extractEmbedStore.ts to run this file addd this command
+
 const require = createRequire(import.meta.url);
 const pdfParse = require("pdf-parse");
 

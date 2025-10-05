@@ -1,7 +1,7 @@
 "use server";
 
 export const fetchAIResponse = async (query: string): Promise<string> => {
-  console.log("click", query);
+  // console.log("click", query);
   try {
     const response = await fetch(`${process.env.BASE_URL}/api/groq`, {
       method: "POST",

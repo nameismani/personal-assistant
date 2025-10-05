@@ -23,35 +23,140 @@ async function generateGeminiEmbedding(text: string): Promise<number[]> {
   return result.embedding.values;
 }
 
+// Function to create error message in HTML format
+function createErrorMessage(errorType: string, details?: string): string {
+  const errorMessages: { [key: string]: string } = {
+    api_key_missing: `
+      <div style="padding: 1.5rem; border-radius: 0.75rem; background-color: #fee; border: 2px solid #fca5a5; margin: 1rem 0;">
+        <h3 style="color: #dc2626; font-weight: 700; margin-bottom: 0.5rem;">⚠️ Configuration Error</h3>
+        <p style="color: #7f1d1d; margin-bottom: 0.5rem;">The API key is not properly configured. Please contact the administrator.</p>
+        <p style="color: #991b1b; font-size: 0.875rem;">If you're the owner, please check your environment variables.</p>
+      </div>
+    `,
+    query_missing: `
+      <div style="padding: 1.5rem; border-radius: 0.75rem; background-color: #fef3c7; border: 2px solid #fbbf24; margin: 1rem 0;">
+        <h3 style="color: #d97706; font-weight: 700; margin-bottom: 0.5rem;">⚠️ Invalid Request</h3>
+        <p style="color: #92400e;">Your query appears to be empty. Please ask me something about Mani!</p>
+      </div>
+    `,
+    embedding_error: `
+      <div style="padding: 1.5rem; border-radius: 0.75rem; background-color: #fee; border: 2px solid #fca5a5; margin: 1rem 0;">
+        <h3 style="color: #dc2626; font-weight: 700; margin-bottom: 0.5rem;">❌ Processing Error</h3>
+        <p style="color: #7f1d1d; margin-bottom: 0.5rem;">I encountered an error while processing your question.</p>
+        <p style="color: #991b1b; font-size: 0.875rem;">Please try rephrasing your question or try again in a moment.</p>
+      </div>
+    `,
+    search_error: `
+      <div style="padding: 1.5rem; border-radius: 0.75rem; background-color: #fee; border: 2px solid #fca5a5; margin: 1rem 0;">
+        <h3 style="color: #dc2626; font-weight: 700; margin-bottom: 0.5rem;">❌ Database Error</h3>
+        <p style="color: #7f1d1d; margin-bottom: 0.5rem;">I'm having trouble accessing the information database.</p>
+        <p style="color: #991b1b; font-size: 0.875rem;">Please try again in a few moments.</p>
+      </div>
+    `,
+    llm_error: `
+      <div style="padding: 1.5rem; border-radius: 0.75rem; background-color: #fee; border: 2px solid #fca5a5; margin: 1rem 0;">
+        <h3 style="color: #dc2626; font-weight: 700; margin-bottom: 0.5rem;">❌ Response Generation Error</h3>
+        <p style="color: #7f1d1d; margin-bottom: 0.5rem;">I encountered an error while generating a response.</p>
+        <p style="color: #991b1b; font-size: 0.875rem;">Please try asking your question again.</p>
+      </div>
+    `,
+    general_error: `
+      <div style="padding: 1.5rem; border-radius: 0.75rem; background-color: #fee; border: 2px solid #fca5a5; margin: 1rem 0;">
+        <h3 style="color: #dc2626; font-weight: 700; margin-bottom: 0.5rem;">❌ Unexpected Error</h3>
+        <p style="color: #7f1d1d; margin-bottom: 0.5rem;">Sorry, something unexpected happened. Please try again.</p>
+        ${
+          details
+            ? `<p style="color: #991b1b; font-size: 0.875rem; font-family: monospace; margin-top: 0.5rem;">Error: ${details}</p>`
+            : ""
+        }
+      </div>
+    `,
+  };
+
+  return errorMessages[errorType] || errorMessages.general_error;
+}
+
 // Main API function
 export async function POST(request: Request) {
   try {
+    // Check for Groq API key
     if (!process.env.GROQ_API_KEY) {
+      console.error("Groq API key is missing");
       return NextResponse.json(
-        { success: false, message: "Groq API key is missing" },
+        {
+          success: false,
+          message: "Groq API key is missing",
+          content: createErrorMessage("api_key_missing"),
+        },
         { status: 500 }
       );
     }
 
-    const body = await request.json();
+    // Parse request body
+    let body;
+    try {
+      body = await request.json();
+    } catch (error) {
+      console.error("Failed to parse request body:", error);
+      return NextResponse.json(
+        {
+          success: false,
+          message: "Invalid request format",
+          content: createErrorMessage("query_missing"),
+        },
+        { status: 400 }
+      );
+    }
+
     const query = body.query || "";
 
-    if (!query) {
+    // Check if query is provided
+    if (!query || query.trim() === "") {
       return NextResponse.json(
-        { success: false, message: "Query is missing from the request body." },
+        {
+          success: false,
+          message: "Query is missing from the request body.",
+          content: createErrorMessage("query_missing"),
+        },
         { status: 400 }
       );
     }
 
     // Generate embedding using Gemini
-    const embedding = await generateGeminiEmbedding(query);
+    let embedding: number[];
+    try {
+      embedding = await generateGeminiEmbedding(query);
+    } catch (error: any) {
+      console.error("Error generating embedding:", error.message);
+      return NextResponse.json(
+        {
+          success: false,
+          message: "Failed to generate embedding",
+          content: createErrorMessage("embedding_error"),
+        },
+        { status: 500 }
+      );
+    }
 
     // Search in Qdrant
-    const searchResult = await qdrantClient.search(COLLECTION_NAME, {
-      vector: embedding,
-      limit: 5,
-      with_payload: true,
-    });
+    let searchResult;
+    try {
+      searchResult = await qdrantClient.search(COLLECTION_NAME, {
+        vector: embedding,
+        limit: 5,
+        with_payload: true,
+      });
+    } catch (error: any) {
+      console.error("Error searching in Qdrant:", error.message);
+      return NextResponse.json(
+        {
+          success: false,
+          message: "Failed to search database",
+          content: createErrorMessage("search_error"),
+        },
+        { status: 500 }
+      );
+    }
 
     // Extract documents from search results
     const documents = searchResult.map((result) => ({
@@ -62,18 +167,35 @@ export async function POST(request: Request) {
 
     if (!documents || documents.length === 0) {
       return NextResponse.json(
-        { success: true, message: "No relevant documents found.", content: [] },
+        {
+          success: true,
+          message: "No relevant documents found.",
+          content:
+            "<p>I couldn't find specific information about that. Could you try rephrasing your question or ask me something else about Mani?</p>",
+        },
         { status: 200 }
       );
     }
-    console.log(documents, "documents retrieved");
 
     // Generate a response using Groq and relevant documents
-    const groq = new ChatGroq({
-      model: "llama-3.1-8b-instant",
-      apiKey: process.env.GROQ_API_KEY,
-      temperature: 0.6,
-    });
+    let groq;
+    try {
+      groq = new ChatGroq({
+        model: "llama-3.1-8b-instant",
+        apiKey: process.env.GROQ_API_KEY,
+        temperature: 0.6,
+      });
+    } catch (error: any) {
+      console.error("Error initializing Groq:", error.message);
+      return NextResponse.json(
+        {
+          success: false,
+          message: "Failed to initialize AI model",
+          content: createErrorMessage("llm_error"),
+        },
+        { status: 500 }
+      );
+    }
 
     const documentsContentArray = documents.map((document) => document.content);
     const prompt = ChatPromptTemplate.fromMessages([
@@ -223,20 +345,37 @@ export async function POST(request: Request) {
       ["human", "{query}"],
     ]);
 
-    const chain = prompt.pipe(groq);
-    const response = await chain.invoke({
-      document: documentsContentArray.join("\n"),
-      query,
-    });
+    let response;
+    try {
+      const chain = prompt.pipe(groq);
+      response = await chain.invoke({
+        document: documentsContentArray.join("\n"),
+        query,
+      });
+    } catch (error: any) {
+      console.error("Error generating response with Groq:", error.message);
+      return NextResponse.json(
+        {
+          success: false,
+          message: "Failed to generate response",
+          content: createErrorMessage("llm_error"),
+        },
+        { status: 500 }
+      );
+    }
 
     return NextResponse.json({
       success: true,
       content: response.content,
     });
   } catch (error: any) {
-    console.error("Error processing request:", error.message);
+    console.error("Unexpected error processing request:", error.message);
     return NextResponse.json(
-      { success: false, message: error.message },
+      {
+        success: false,
+        message: error.message,
+        content: createErrorMessage("general_error", error.message),
+      },
       { status: 500 }
     );
   }
