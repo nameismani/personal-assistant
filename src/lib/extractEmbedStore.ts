@@ -22,6 +22,80 @@ const qdrantClient = new QdrantClient({
 
 const COLLECTION_NAME = "resume_data";
 
+// Additional professional experience text
+const ADDITIONAL_EXPERIENCE = `
+### Professional Experience (Up to October 2025)
+
+#### **Novalnet e-Solutions**
+During my tenure at Novalnet e-Solutions, I contributed to several impactful projects. Some of the notable ones include:
+
+- **Feedback Page**  
+  - Built a user feedback system where users can submit feedback along with its type and upload multiple images.  
+  - Upon submission, feedback details are stored in the database through a backend service.  
+  - Designed an admin interface to view and manage user feedback. Admins can view feedback images in a modal and mark them as resolved.  
+  - Implemented a notification system to inform users about feedback resolution based on the feedback type.
+
+- **Session Lockout**  
+  - Developed functionality to detect user activity (keyboard and mouse events) to determine whether the user is active or inactive.
+  - When inactive, the application redirects users and sends a backend request to mark their session as inactive.
+  - Designed a seamless reauthentication process, allowing users to unlock their session by entering their password and resuming their previous activity.
+
+#### **Siaratech (IntoAEC)**
+At Siaratech, I participated in various projects, delivering innovative solutions. Some of the prominent ones include:
+
+- **Product Clipper**  
+  - Purpose: Created a Chrome extension to streamline the management of product details from external websites for an AEC SaaS platform.
+  - Functionality: Users can download the extension, select relevant product details, and add them to their SaaS account effortlessly.
+  - Impact: The extension significantly reduced manual efforts, saving time and enhancing workflow efficiency for AEC professionals.
+
+- **Product and Service Feature**  
+  - Designed and developed an application using Next.js, enabling architects to add their products and services to the platform.
+  - Backend development was handled using Express.js, with product and service data stored in a database.
+  - Utilized AWS S3 for secure image uploads and managed state using useState for products and useReducer for services.
+  - The products and services were displayed dynamically to customers, creating a seamless user experience.
+
+- **Additional Contributions**  
+  - Worked on diverse tasks like invoice previews, generating purchase orders from estimates, and enabling invoice downloads.
+
+### Personal Projects
+
+- **Job Finder**  
+  - Built a full-stack job portal using React (frontend), Express (backend), and MongoDB (database).
+  - Employers can create accounts and post job openings, while job seekers can browse and filter job postings by location, experience, and other criteria.
+  - URL: https://nameismani-jobfinder-mern.netlify.app/user-auth
+  - Demo Credentials: Email: mm2729025@gmail.com, Password: Mani#1766256
+  - Note: Deployment issues may occur as it was deployed in January 2024.
+
+- **Chat App**  
+  - Developed a real-time chat application similar to WhatsApp using the MERN stack and Socket.io for connection persistence.
+  - Users can log in and chat with others in real time.
+  - URL: https://mern-live-chat-app.netlify.app
+  - Demo Credentials: Email: mm2729025@gmail.com, Password: Mani#1766256
+  - Note: May experience downtime as it was last updated in March 2024.
+
+- **MERN E-Commerce**  
+  - Designed an e-commerce platform where users can browse products, log in, and complete purchases via Stripe (test payment gateway).
+  - Admins can manage products directly through the platform.
+  - URL: https://nameismani-mern-ecommerce.netlify.app
+  - Note: Last updated in April 2024.
+
+- **Turf Slot Booking**  
+  - Developed a slot-booking platform using Next.js for both frontend and backend.
+  - Employed NextAuth for authentication and implemented cron jobs locally using node-cron. Later migrated to Vercel with GitHub workflows for serverless cron jobs.
+  - Features include managing time slots from Monday to Sunday and viewing one-week availability starting from the current date.
+  - URL: https://turfproject.vercel.app
+  - Demo Credentials: Email: mani@gmail.com, Password: Mani#1766256
+  - Note: Last updated in November 2024.
+
+### Freelance Projects
+
+- **JInterior Design**  
+  - Created a website to showcase shop products for a friend's interior design business.
+  - Initially developed using React.js and later migrated to Next.js for improved SEO.
+  - Gained expertise in implementing React carousels and animations using external packages.
+  - URL: https://jinteriorssr.netlify.app
+`;
+
 // PDF text extraction
 async function extractPdfText(fileName: string): Promise<string> {
   const filePath = path.join(__dirname, fileName);
@@ -78,13 +152,27 @@ async function createCollection() {
 }
 
 // Upload embeddings to Qdrant
-async function uploadToQdrant(chunks: string[], embeddings: number[][]) {
+async function uploadToQdrant(
+  chunks: string[],
+  embeddings: number[][],
+  source: string
+) {
+  const existingPoints = await qdrantClient.scroll(COLLECTION_NAME, {
+    limit: 100,
+    with_payload: true,
+  });
+
+  const maxId =
+    existingPoints.points.length > 0
+      ? Math.max(...existingPoints.points.map((p) => Number(p.id)))
+      : -1;
+
   const points = chunks.map((chunk, index) => ({
-    id: index,
+    id: maxId + index + 1,
     vector: embeddings[index],
     payload: {
       text: chunk,
-      source: "Mani Resume.pdf",
+      source: source,
       timestamp: new Date().toISOString(),
     },
   }));
@@ -94,7 +182,7 @@ async function uploadToQdrant(chunks: string[], embeddings: number[][]) {
     points: points,
   });
 
-  console.log(`Uploaded ${points.length} chunks to Qdrant`);
+  console.log(`Uploaded ${points.length} chunks from ${source} to Qdrant`);
 }
 
 // Search function (for HR queries)
@@ -109,9 +197,11 @@ async function searchResume(query: string, limit: number = 5) {
 
   return searchResult.map((result) => ({
     text: result.payload?.text,
+    source: result.payload?.source,
     score: result.score,
   }));
 }
+
 // Process chunks and embed with chosen method
 async function embedChunks(
   chunks: string[],
@@ -126,6 +216,8 @@ async function embedChunks(
       emb = await generateGeminiEmbedding(chunk);
     }
     embeddings.push(emb);
+    // Small delay to avoid rate limits
+    await new Promise((resolve) => setTimeout(resolve, 100));
   }
   return embeddings;
 }
@@ -133,47 +225,49 @@ async function embedChunks(
 // Main runner function
 async function run() {
   try {
-    // const text = await extractPdfText("Mani Resume.pdf");
-    // const chunks = await splitTextWithLangchain(text);
+    // UNCOMMENT BELOW TO UPLOAD DATA (run once)
+    const text = await extractPdfText("Mani Resume.pdf");
+    const chunks = await splitTextWithLangchain(text);
+    console.log("Total PDF chunks:", chunks.length);
 
-    // console.log("Total chunks:", chunks.length);
+    // Split additional experience text
+    const additionalChunks = await splitTextWithLangchain(
+      ADDITIONAL_EXPERIENCE
+    );
+    console.log("Total additional chunks:", additionalChunks.length);
 
-    // Change useOpenAI flag to choose embedding provider
-    // const embeddings = await embedChunks(chunks, /* useOpenAI = */ false);
+    // Create collection
+    await createCollection();
 
-    // Step 3: Create collection and upload
-    // await createCollection();
-    // await uploadToQdrant(chunks, embeddings);
+    // Upload PDF resume
+    console.log("\nUploading PDF resume...");
+    const embeddings = await embedChunks(chunks, /* useOpenAI = */ false);
+    await uploadToQdrant(chunks, embeddings, "Mani Resume.pdf");
 
-    // Step 4: Test search
+    // Upload additional experience
+    console.log("\nUploading additional experience...");
+    const additionalEmbeddings = await embedChunks(
+      additionalChunks,
+      /* useOpenAI = */ false
+    );
+    await uploadToQdrant(
+      additionalChunks,
+      additionalEmbeddings,
+      "Additional Professional Experience"
+    );
+
+    // Test search
     console.log("\n--- Testing Search ---");
-    const results = await searchResume("Top 3 Projects of mai");
+    const results = await searchResume("what are the credentials for chat app");
     results.forEach((result, i) => {
       console.log(`\nResult ${i + 1} (score: ${result.score}):`);
+      console.log(`Source: ${result.source}`);
       console.log(result.text);
     });
-
-    // console.log("First embedding vector sample:", embeddings[0].slice(0, 5));
   } catch (error) {
     console.error("Error:", error);
   }
 }
 
 // Execute
-
 run();
-
-// import { QdrantClient } from "@qdrant/js-client-rest";
-
-// const client = new QdrantClient({
-//   url: "https://55fa07db-307d-4f5f-8dfe-24e60e6552a0.us-east4-0.gcp.cloud.qdrant.io:6333",
-//   apiKey:
-//     "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhY2Nlc3MiOiJtIn0.GCkM2h6UkrxIU9ADWl217msr57o9RRrdwzgtQZTgecc",
-// });
-
-// try {
-//   const result = await client.getCollections();
-//   console.log("List of collections:", result.collections);
-// } catch (err) {
-//   console.error("Could not get collections:", err);
-// }
