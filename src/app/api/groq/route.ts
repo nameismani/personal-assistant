@@ -1,4 +1,3 @@
-// app/api/groq.ts
 import { ChatGroq } from "@langchain/groq";
 import { ChatPromptTemplate } from "@langchain/core/prompts";
 import { NextResponse } from "next/server";
