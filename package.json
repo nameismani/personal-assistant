@@ -2,6 +2,7 @@
   "name": "personal-assistant",
   "version": "0.1.0",
   "private": true,
+  "type": "module",
   "scripts": {
     "dev": "next dev",
     "build": "next build",
@@ -19,9 +20,11 @@
     "@langchain/groq": "^0.1.2",
     "@langchain/openai": "^0.3.14",
     "@mui/material": "^5.15.20",
+    "@qdrant/js-client-rest": "^1.15.1",
     "axios": "^1.7.9",
     "next": "14.2.20",
     "openai": "^4.76.3",
+    "pdf-parse": "^2.1.7",
     "react": "^18",
     "react-dom": "^18",
     "react-icons": "^5.4.0"
