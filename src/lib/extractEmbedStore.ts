@@ -10,6 +10,12 @@ import "dotenv/config";
 
 // node src/lib/extractEmbedStore.ts to run this file addd this command
 
+/*
+If faced any issue in latest node version above 2.22 use this command
+npm i -D tsx --force
+npx tsx src/lib/extractEmbedStore.ts
+*/
+
 const require = createRequire(import.meta.url);
 const pdfParse = require("pdf-parse");
 
@@ -26,7 +32,7 @@ const COLLECTION_NAME = "resume_data";
 
 // Additional professional experience text
 const ADDITIONAL_EXPERIENCE = `
-### Professional Experience (Up to October 2025)
+### Professional Experience (Up to November 2025)
 
 #### **Novalnet e-Solutions**
 During my tenure at Novalnet e-Solutions, I contributed to several impactful projects. Some of the notable ones include:
@@ -60,6 +66,14 @@ At Siaratech, I participated in various projects, delivering innovative solution
   - Worked on diverse tasks like invoice previews, generating purchase orders from estimates, and enabling invoice downloads.
 
 ### Personal Projects
+
+- **Portfolio Website**  
+  - Developed a professional portfolio website using Next.js to showcase my skills, projects, and experience.
+  - Deployed the application on AWS Amplify for continuous deployment and hosting.
+  - Purchased a custom domain from GoDaddy and integrated it with AWS Route 53 for DNS management.
+  - Configured SSL/TLS certificates for secure HTTPS connections.
+  - Gained hands-on experience with AWS cloud services, domain management, and production deployment workflows.
+  - URL: https://portfolio.nameismani.com/
 
 - **Job Finder**  
   - Built a full-stack job portal using React (frontend), Express (backend), and MongoDB (database).
@@ -97,7 +111,6 @@ At Siaratech, I participated in various projects, delivering innovative solution
   - Gained expertise in implementing React carousels and animations using external packages.
   - URL: https://jinteriorssr.netlify.app
 `;
-
 // PDF text extraction
 async function extractPdfText(fileName: string): Promise<string> {
   const filePath = path.join(__dirname, fileName);
